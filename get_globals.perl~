@@ -1,0 +1,4 @@
+#!/usr/bin/perl 
+$file="/home/bird/bin/box_bird_process";
+$numBoxes=16;
+1;

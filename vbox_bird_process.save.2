@@ -1,0 +1,31 @@
+#############################################################
+#box	enable	bird	bird's home directory	process to run 
+####	######	####	#####################	##############
+1	1	803     /home/bird/opdat/B<3>   2ac -B <1> -S <3> -f -x -on 10:00 -off 23:50 classify_speakers_B803.stim 
+2	1       802	/home/bird/opdat/B<3>   lights -B <1> -S <3> -on 99 -off 99
+3	1	708	/home/bird/opdat/B<3>   evidence_accum.py -B <1> -S <3> -c B<3>_config.json 
+4	1	809	/home/bird/opdat/B<3>   evidence_accum.py -B <1> -S <3> -c B<3>_config.json
+5	0	999	/home/bird/opdat/B<3>   NO OPERANT PANEL HERE
+6	1	746	/home/bird/opdat/B<3>   2ac_fr_probe -B <1> -S <3> -on 99 -off 99 -J -t 20 -FR 4 -PR 0 pitchtimbre_train.stim
+7	1	649	/home/bird/opdat/B<3>   gng -B <1> -S <3> -on 99 -off 99 -t 40 -w 2 -mirrorP AA_BB_post.stim   
+8	1	770	/home/bird/opdat/B<3>   gng -B <1> -S <3> -on 99 -off 99 -t 20 -w 2 -mirrorP AB_BA_post.stim
+# 
+#this file should have the whitespace delimited structure
+#<box number>   <enable>     <bird id>     <directory for execution>	<process to run>
+
+#'start s' will start the indicated processes in the indicated boxes and directories
+#<process to run> may be "NONE" if no process should run for that box ('start k' will kill any that are)
+#only one process may run in a box at once
+#if there is more than one line for a box, only the first one will count
+#if there is no line for a box, 'start' will take no action on processes for it
+#the enable column should be '1' or '0'.  other values will cause the line to fail to be parsed.
+#if it is '1', the line behaves as expected.  if it is '0':
+#	'start k' will kill processes for that box
+#	'start s' will not start the process indicated on the line
+
+#a number enclosed in angle brackets may be used to stand for the value in a previous column for that line
+#for example:  the line "12	1	143	/home/bird/opdata/B<3>	gng -B <1> -S <3> test.stim"
+#will be parsed as:     "12	1	143	/home/bird/opdata/B143	gng -B 12 -S 143 test.stim"
+
+#lines begining with '#' and lines without 5 whitespace delimited columns will be ignored
+#only <process to run> may contain whitespace

@@ -1,0 +1,45 @@
+#############################################################
+#box	enable	bird	bird's home directory	process to run 
+####	######	####	#####################	##############
+1	1	316     /home/bird/opdat/B<3>   spkchcholdtrn -B <1> -S <3> -L 2 -x -sdur 1.20 -samp 10 -t 10 -w 4 -on 99 -off 99
+2	1	332	/home/bird/opdat/B<3>   gng -B <1> -S <3> -on 99 -off 99 -t 25 gng_BA.stim
+3  	0	321	/home/bird/opdat/B<3>   femxentropy -B <1> -on 99 -off 99 -swap 0 -state 5 -S <3> entropy_femx_set1.stim
+4	1	290	/home/bird/opdat/B<3>   gng -B <1> -S <3> -on 99 -off 99 -mirrorP grmBA_3preprb.stim 
+5	1	326	/home/bird/opdat/B<3>   2acWN -B <1> -S <3> -on 99 -off 99 -d 55 noise2ac_CB.stim
+6	1	287	/home/bird/opdat/B<3>   gng -B <1> -S <3> -on 99 -off 99 -mirrorP grmBA_3preprb.stim
+7	1	339	/home/bird/opdat/B<3>   gng -B <1> -S <3> -f -on 99 -off 99 gng_AB_2.stim
+8	1	322	/home/bird/opdat/B<3>   lights -B <1> -on 99 -off 99
+9	1	333	/home/bird/opdat/B<3>   gng -B <1> -S <3> -t 5 -on 99 -off 18:00 gng_AC.stim
+10	1	334	/home/bird/opdat/B<3>   gng -B <1> -S <3> -f -on 99 -off 99 gng_AB.stim
+11	1	299	/home/bird/opdat/B<3>   2ac_entropy -B <1> -S <3> -f -x -Rn -Rf 100:100:0:0 -on 99 -off 99 entropy_2a_set1.stim
+12	1	313	/home/bird/opdat/B<3>	gngpecknoise -B <1> -S <3> -on 99 -off 99 -d 55 gngpnoise_CB.stim
+13	1	317	/home/bird/opdat/B<3> 	2acQLT -B <1> -S <3> -p 10:0:60:30 -x -t 29 -on 99 -off 99 ivr5_bsl3_2acQLT.stim
+14	1	327	/home/bird/opdat/B<3>   gng -B <1> -S <3> -on 99 -off 99 -f gng_BC.stim
+15	1	301	/home/bird/opdat/B<3>   2ac_entropy -B <1> -S <3> -f -x -Rn -Rf 100:100:0:0 -on 99 -off 99 entropy_2a_set1.stim
+16	1	296	/home/bird/opdat/B<3>   2ac_entropy -B <1> -S <3> -f -x -Rn -Rf 100:100:0:0 -on 99 -off 99 entropy_2a_set1.stim 
+#this file should have the whitespace delimited structure
+#<box number>   <enable>     <bird id>     <directory for execution>	<process to run>
+
+#'start s' will start the indicated processes in the indicated boxes and directories
+#<process to run> may be "NONE" if no process should run for that box ('start k' will kill any that are)
+#only one process may run in a box at once
+#if there is more than one line for a box, only the first one will count
+#if there is no line for a box, 'start' will take no action on processes for it
+#the enable column should be '1' or '0'.  other values will cause the line to fail to be parsed.
+#if it is '1', the line behaves as expected.  if it is '0':
+#	'start k' will kill processes for that box
+#	'start s' will not start the process indicated on the line
+
+#a number enclosed in angle brackets may be used to stand for the value in a previous column for that line
+#for example:  the line "12	1	143	/home/bird/opdata/B<3>	gng -B <1> -S <3> test.stim"
+#will be parsed as:     "12	1	143	/home/bird/opdata/B143	gng -B 12 -S 143 test.stim"
+
+#lines begining with '#' and lines without 5 whitespace delimited columns will be ignored
+#only <process to run> may contain whitespace
+
+
+
+
+
+
+

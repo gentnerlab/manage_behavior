@@ -1,0 +1,16 @@
+1	NONE	/home/bird/opdat/B101	NONE
+2	102	/home/bird/opdat/B102	gng -B 2 -S 102 -on 7 -off 19 G2set1.stim
+3	103	/home/bird/opdat/B103	gng -B 3 -S 103 -on 7 -off 19 G2set1.stim
+4	104	/home/bird/opdat/B104	gng -B 4 -S 104 -on 7 -off 19 G2set1.stim
+5	105	/home/bird/opdat/B105	gng -B 5 -S 105 -on 7 -off 19 G2set1.stim
+6	106	/home/bird/opdat/B106	gng -B 6 -S 106 -on 7 -off 19 G2set1.stim
+7	107	/home/bird/opdat/B107	gng -B 7 -S 107 -on 7 -off 19 G2set2.stim
+8	108	/home/bird/opdat/B108	gng -B 8 -S 108 -on 7 -off 19 G2set2.stim
+9	109	/home/bird/opdat/B109	gng -B 9 -S 109 -on 7 -off 19 G2set2.stim
+10	110	/home/bird/opdat/B110	gng -B 10 -S 110 -on 7 -off 19 G2set2.stim
+11	111	/home/bird/opdat/B111	gng -B 11 -S 111-on 7 -off 19 G2set2.stim
+12	112	/home/bird/opdat/B112	gng -B 12 -S 112 -on 7 -off 19 gng_AB.stim
+13	117	/home/bird/opdat/B117	gng -B 13 -S 117 -on 7 -off 19 gng_AB.stim
+14	114	/home/bird/opdat/B114	gng -B 14 -S 114 -on 7 -off 19 gng_BC.stim
+15	115	/home/bird/opdat/B115	gng -B 15 -S 115 -on 7 -off 19 gng_BC.stim
+16	116	/home/bird/opdat/B116	gng -B 16 -S 116 -on 7 -off 19 gng_AC.stim

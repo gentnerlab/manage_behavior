@@ -1,0 +1,169 @@
+#!/usr/bin/perl 
+
+#this should point to a file that has the tab delimited structure
+#box number     bird id     intended process (literal command with options)
+#
+#intended process may be "NONE" if no process should run (kill all that are)
+#bird id may be "NONE" if no bird is in the box
+#only one program may run in a box at once
+#the program indicated in the first line for a given box number will be the only one running when this program finishes
+#the intended process has to match exactly (same order of options, etc.) the currently running process to avoid a kill
+$file="/home/bird/bin/box_bird_process";
+
+#here you should list the programs that may be run
+#this program will kill these processes if they are running for a box if the file above has a line for that box that doesn't match
+@psnames=("shape","shape_hold","gng");
+
+#maintain the number of boxes here
+$numBoxes=16;
+
+@lines=`cat $file`;
+$psnames=join("|",@psnames);
+@processes=`ps waux | egrep '$psnames'`;
+
+$home=`pwd`;
+
+#pass a string containing s as argument 1 to activate starting
+$shouldStartProcesses=0;
+
+#pass a string containing k as argument 1 to activate killing
+$shouldKillProcesses=0;
+
+#print((1 + $#ARGV)." arguments passed in\n");
+
+if($#ARGV>=0){
+   #print("$ARGV[0] is first argument\n");
+   if($ARGV[0] =~ /k/){
+       print("activating killing\n");
+       $shouldKillProcesses=1;
+   } else {
+       print("killing inactive.  pass a command line argument containing 'k' to activate.\n");
+   }
+   if($ARGV[0] =~ /s/){
+       print("activating starting\n");
+       $shouldStartProcesses=1;
+   } else {
+       print("starting inactive.  pass a command line argument containing 's' to activate.\n");
+   }
+} else {
+    print("starting and killing inactive.  pass a command line argument containing 's' and/or 'k', respectively, to activate.\n");
+}
+
+$i=0;
+while(scalar(@processes)>0){
+    $ps=pop(@processes);
+    @info=split(" ",$ps,11);
+    chop($info[10]);
+    if($info[10] =~ /^($psnames)/){
+	@pspieces=split(" ",$info[10]);
+	
+	$j=0;
+	while(scalar(@pspieces)>$j){
+	    if($pspieces[$j] eq "-B"){
+		$boxNum = $pspieces[1 + $j];
+	    }
+	    $j++;
+	}
+	@indProcesses[$i]=$info[10];
+	@indBoxes[$i]=$boxNum;	
+	@indIDs[$i]=$info[1];
+	@indStatuses[$i]=$info[7];
+	$i++;
+    }
+}
+
+#$i=0;
+#while(scalar(@indProcesses)>$i){
+#    print("box ".$indBoxes[$i]." is running ".$indProcesses[$i]."\n");
+#    $i++;
+#}
+
+$i=0;
+while($numBoxes>$i){
+    @boxCorrect[$i]=-1;
+    @correctProgram[$i]="";
+    @directory[$i]="";
+    @birdid[$i]=0;
+    $i++;
+}
+
+$j=0;
+while(scalar(@lines)>$j){
+    $line=$lines[$j];
+    @fields=split("\t",$line);
+
+    if(scalar(@fields)==4){
+
+	if($fields[0]>0 && $fields[0]<=$numBoxes){
+	    if($boxCorrect[$fields[0] - 1]==-1){
+		$boxCorrect[$fields[0] - 1]=0;
+	    
+
+		chop($fields[3]);
+
+		$correctProgram[$fields[0] - 1]=$fields[3];
+		$directory[$fields[0] - 1]=$fields[2];
+		$birdid[$fields[0] - 1]=$fields[1];
+
+		$i=0;
+		while(scalar(@indProcesses)>$i){
+		    if($indBoxes[$i]==$fields[0]){
+			if($indProcesses[$i] eq $fields[3]){
+			    if ($indStatuses[$i] eq "SL" || $indStatuses[$i] eq "RL"){
+				if($boxCorrect[$fields[0] - 1]==0){
+				    print("box ".$fields[0]." correctly running ".$indProcesses[$i]."\n");
+				    $boxCorrect[$fields[0] - 1]=1;
+				} else {
+				    print("box ".$fields[0]." INCORRECTLY running duplicate copy of ".$indProcesses[$i]." you should kill one of them\n");
+				}
+			    } elsif ($indStatuses[$i] eq "Ss") {
+				print("box ".$fields[0]." found running session leader process ".$indIDs[$i]."\n");		
+			    } else {
+				print("box ".$fields[0]." running correct process ".$indProcesses[$i]." but with status ".$indStatuses[$i]." you should investigate ".$indIDs[$i]."\n");
+				$boxCorrect[$fields[0] - 1]=1;
+			    }
+			} else {
+			    print("box ".$fields[0]." INCORRECTLY running ".$indProcesses[$i]." should kill ".$indIDs[$i]."\n");
+			    if($shouldKillProcesses){
+				print("attempting to kill $indProcesses[$i] ($indIDs[$i])\n");
+				system "kill $indIDs[$i]";
+			    }
+			}
+		    }
+		    $i++;
+		}
+	    } else {
+		print("ignoring an additional line for box ".$fields[0]." in the file ".$file."\n");
+	    }
+	} else {
+	    print("ignoring a line for box ".$fields[0]." in the file ".$file." because it is less than 0 or bigger than ".$numBoxes."\n");
+	}
+    } else {
+	print("ignoring a line in the file ".$file." that contains something other than 4 columns\n");
+    }
+    $j++;
+}
+
+$i=0;
+while($i<$numBoxes){
+    if($boxCorrect[$i]==0){
+	if($correctProgram[$i] eq "NONE"){
+	    print("box ".($i + 1)." correctly running no program (assuming processes suggested above were killed)\n");
+	} else {
+	    print("box ".($i + 1)." needs to start ".$correctProgram[$i]." in directory ".$directory[$i]."\n");
+	    if($shouldStartProcesses){
+		print("attempting to start $correctProgram[$i] in $directory[$i]\n");
+		($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+		$date = sprintf("%02d-%02d-%02d",(1+$mon),$mday,(1900+$year-2000));
+		system "cd $directory[$i]; echo '\n$date: starting $correctProgram[$i]' >> B$birdid[$i]_log.txt; $correctProgram[$i] &";
+	    }
+	}
+    } elsif ($boxCorrect[$i]==-1){
+	print("box ".($i + 1)." has no line in file ".$file."\n");
+    } elsif ($boxCorrect[$i]==1){
+	#print("box ".($i + 1)." needs no change\n");
+    } else {
+	print("box ".($i + 1)." had some problem that should never happen\n");
+    }
+    $i++;
+}

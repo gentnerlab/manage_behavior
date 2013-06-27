@@ -1,0 +1,222 @@
+#!/usr/bin/perl 
+use POSIX qw(ceil floor);
+require "/home/bird/bin/perltools/load_lab_file.perl";
+require "/home/bird/bin/perltools/get_globals.perl";
+
+@data=readfile($file, $numBoxes);
+
+$outfile='/home/bird/bin/perltools/multiplot_temp.script';
+open(OUT,'>'.$outfile) || die "whoa -- can't open $outfile: $!";
+
+$plotSuffix='.plot_out';
+$logdir='/home/bird/logs/';
+$logsuffix='-log.txt';
+($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+$logbase = sprintf("%s%02d-%02d-%04d-%02d-%02d-%02d",$logdir,(1+$mon),$mday,(1900+$year),$hour,$min,$sec);
+$log=$logbase.$logsuffix;
+system "cd $logdir; mv *$logsuffix old";
+open(LOG,'>'.$log) || warn "could not open $log: $!";
+print LOG `ps waux | grep gng ; echo '---\n' `;
+print LOG `start;  echo '---\n' `;
+print LOG `cat $file ;  echo '---\n' ;`;
+
+$side=ceil(sqrt($numBoxes));
+$size=1.0/$side;
+print OUT "set multiplot; set nokey; set size $size, $size ; set ytics 0, .2, 1; set grid; set bmargin 2; set lmargin 2; set rmargin 2; set tmargin 2;\n\n";
+
+$record=0;
+foreach $row(@data){
+    @fields=@$row; 
+    if ($fields[1]==1 && $fields[2]>=100 && $fields[2]<=9998 && ($fields[4]=~/^gng/ || $fields[4]=~/^gngpass/ || $fields[4]=~/^femxpeck/ || $fields[4]=~/^femxperch/ || $fields[4]=~/^2ac/  || $fields[4]=~/^2acWN/ || $fields[4]=~/^2acQLT/ || $fields[4]=~/^gngmot/ || $fields[4]=~/^gngmot2/ || $fields[4]=~/^gngpeck/ || $fields[4]=~/^gngpeckstop/ || $fields[4]=~/^gngpecknoise/ ||$fields[4]=~/^2acsnip/ ||$fields[4]=~/^2acmot/ || $fields[4]=~/^2acdur/ || $fields[4]=~/^2acentropy/ || $fields[4]=~/^spkchoice/ || $fields[4]=~/^2acstreamchg_train/ || $fields[4]=~/^2acstreamchg/ || $field[4]=~/^2acmatch/ ||  $fields[4]=~/^spkchcholdtrn/ || $field[4]=~/^2acmodstim^/ || $fields[4]=~/^changepeck/ || $fields[4]=~/^2acmatchblock/ || $fields[4]=~/^gngmatch/)){
+   	$x=(($fields[0] - 1) % $side)*$size;
+	$y=1.0 - (ceil($fields[0]/$side))*$size;
+	@break=split(" ",$fields[4]);
+	$fullstim=$break[scalar(@break)-1];
+	$stimstem=substr($fullstim,0,index($fullstim,'.stim'));
+
+	$title='\''.$fields[2].' '  . $fullstim.'\'';	    
+	$datafile='"'.$fields[3].'/'.$fields[2].'_'.$stimstem.$plotSuffix.'"';
+	if ($fields[4]=~/^spkchoice/ ){
+	    $datafile='"'.$fields[3].'/'.$fields[2].'_spkchoice'.$plotSuffix.'"';
+	}
+	if ($fields[4]=~/^spkchcholdtrn/ ){
+	    $datafile='"'.$fields[3].'/'.$fields[2].'_spkchcholdtrn'.$plotSuffix.'"';
+	}
+	$plotcommand="plot $datafile using 1:2 with l, $datafile using 1:3 with l, $datafile using 1:4 with l";
+		    
+	print OUT "set origin $x , $y ; \nset title $title ; \n$plotcommand ; \n";
+
+        #print("fields[0]=".$fields[0]." fields[1]=" .$fields[1]." fields[2]=" .$fields[2]." fields[3]=" .$fields[3]." fields[4]=" .$fields[4]."\n");
+	if($fields[4]=~/^gng\s/) {
+	    $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; Xgono -p -c -b 100 -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].summaryDAT; echo '---\n'`;
+	}
+	if($fields[4]=~/^gngmatch\s/) {
+	    $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; Xgngmatch -p -c -b 100 -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].summaryDAT; echo '---\n'`;
+	}
+	if($fields[4]=~/^gngpass\s/) {
+	    $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; Xgono -p -c -b 100 -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].summaryDAT; echo '---\n'`;
+	}
+	if($fields[4]=~/^femxpeck/) {
+	    $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; Xfemxpeck -p -c -b 25 -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].summaryDAT; echo '---\n'`;
+	}
+	if($fields[4]=~/^femxperch/) {
+	    $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; Xfemxperch -p -c -v -b 50 -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].summaryDAT; echo '---\n'`;
+	}
+	if($fields[4]=~/^2ac\s/) {
+	    $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; X2ac -p -c -x -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].summaryDAT; echo '---\n'`;
+	}
+	if($fields[4]=~/^2acstreamchg_train\s/) {
+	    $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; X2acstreamchg_train -p -c -x -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].summaryDAT; echo '---\n'`;
+	}
+	if($fields[4]=~/^2acstreamchg\s/) {
+	    $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; X2acstreamchg -p -c -x -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].summaryDAT; echo '---\n'`;
+	}
+	if($fields[4]=~/^2acWN/) {
+	    $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; X2acnoise -p -c -x -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].summaryDAT; echo '---\n'`;
+	}
+	if($fields[4]=~/^2acQLT/) { 
+	    $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; X2acQLT  -p -c -x -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].summaryDAT; echo '---\n'`;
+	}
+       	if($fields[4]=~/^gngmot/) {
+	    $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; Xgonomot -p -c -b 100 -M 12 -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].summaryDAT; echo '---\n'`;
+	}
+       	if($fields[4]=~/^gngmot2/) {
+	    $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; Xgonomot2 -p -c -b 100 -M 7 -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].summaryDAT; echo '---\n'`;
+	}
+	if($fields[4]=~/^gngpeck\s/) {
+	    $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; Xgonopeck -p -c -b 100 -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].summaryDAT; echo '---\n'`;
+	}
+	if($fields[4]=~/^gngpecknoise/) {
+	    $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; Xgonopnoise -p -c -b 100 -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].summaryDAT; echo '---\n'`;
+	}
+	if($fields[4]=~/^gngpeckstop/) {
+	    $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; Xgonopeckstop -p -c -b 100 -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].summaryDAT; echo '---\n'`;
+	}
+    if($fields[4]=~/^changepeck/) {
+	    $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; Xgonochangepeck -p -c -b 100 -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].summaryDAT; echo '---\n'`;
+	}
+
+       	if($fields[4]=~/^2acmot/) {
+	    $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; X2acmot -p -c -b 100 -M 12 -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].summaryDAT; echo '---\n'`;
+	}
+	if($fields[4]=~/^2acdur/) {
+           $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; X2acdur -p -c -b 100 -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].summaryDAT; echo '---\n'`;
+	}	print LOG $logstuff;
+	if($fields[4]=~/^2acsnip/) { 
+	    $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; X2acsnip -p -c -b 100 -z 1 -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].summaryDAT; echo '---\n'`;
+	}	print LOG $logstuff;
+	if($fields[4]=~/^2acmodstim/) { 
+	    $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; X2acsnip -p -c -b 100 -z 1 -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].summaryDAT; echo '---\n'`;
+	}	print LOG $logstuff;
+    if($fields[4]=~/^2ac_entropy/) {
+	    $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; X2acentropy -p -c -b 100 -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].summaryDAT; echo '---\n'`;
+	}	print LOG $logstuff;
+	if($fields[4]=~/^spkchoice/){
+	    $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; Xspkchoice  -p -c -x -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].SPKsummaryDAT; echo '---\n'`;
+	}
+	if($fields[4]=~/^spkchcholdtrn/){
+	    $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; Xspkchcholdtrn  -p -c -x -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].SCHTsummaryDAT; echo '---\n'`;
+	}
+	if($fields[4]=~/^2acmatch/){
+	    $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; X2acmatch  -p -c -x -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].summaryDAT; echo '---\n'`;
+	}
+if($fields[4]=~/^2acmatchblock/){
+	    $logstuff= `echo 'box $fields[0]\n'; cd $fields[3]; X2acmatch  -p -c -x -S $fields[2] $fullstim; echo '---\n'; cat $fields[2].summaryDAT; echo '---\n'`;
+	}
+	if($logstuff =~ /Feeder ops today: (\d+)/){
+	    $feedops[$record]=$1;
+	} else {
+	    $feedops[$record]="NA";
+	}
+
+	if($logstuff =~ /last trial run at (\d+) (\d+)/){
+	    $lasttrialtimes[$record]=$1;
+	    $lasttrialdates[$record]=$2;
+	} else {	    
+	    $lasttrialtimes[$record]="NA";
+	    $lasttrialdates[$record]="NA";
+	}
+
+	if($logstuff =~ /Trials this session: (\d+)/){
+	    $numtrials[$record]=$1;
+	} else{
+	    $numtrials[$record]="NA";
+	}
+
+	$numLightsOut[$record]="NA";
+	$numNoResponses[$record]="NA";	
+	if($logstuff =~ /d responses: (\d+)/){
+	    if($feedops[$record] ne "NA"){
+		$numLightsOut[$record]=$1-$feedops[$record];
+	    }
+	    if($numtrials[$record] ne "NA"){
+		$numNoResponses[$record]=$numtrials[$record]-$1;
+	    }
+	}
+
+	if($logstuff =~ /Hopper failures today: (\d+)/){
+	    $hfailures[$record]=$1;
+	} else {
+	    $hfailures[$record]="NA"
+	}
+	
+	if($logstuff =~ /go down failures today: (\d+)/){
+	    $dfailures[$record]=$1;
+	} else {
+	    $dfailures[$record]="NA"
+	}
+	if($logstuff =~ /Hopper already up failures today: (\d+)/){
+	    $ufailures[$record]=$1;
+	} else {
+	    $ufailures[$record]="NA"
+	}
+	if($logstuff =~ /Responses during feed: (\d+)/){
+	    $rfailures[$record]=$1;
+	} else {
+	    $rfailures[$record]="NA"
+	}
+
+	$ids[$record]=$fields[2];
+	$boxnums[$record]=$fields[0];
+	$record++;
+    } else {
+	print("box ".$fields[0]." either has no bird or is not running a program that allplots knows about\n");
+    }
+}
+
+print OUT "unset multiplot;";
+close(OUT);
+close(LOG);
+
+system "gnuplot -persist $outfile";
+
+print("FeedErr codes(won't come up, won't go down, already up, resp during feed)\n");
+
+if("$mday"<10){$lmday = sprintf("0%d",$mday);} #append a zero to the front of it
+else{ $lmday=$mday;}
+
+for($i=0;$i<$record;$i++){
+
+    $pct1="NA";
+    $pct2="NA";
+    $pct3="NA";    
+    if($numtrials[$i]>0){
+	if($feedops[$i] ne "NA"){
+	    $pct1=int(100.0*$feedops[$i]/$numtrials[$i]);
+	}
+	if($numNoResponses[$i] ne "NA"){
+	    $pct3=int(100.0*$numNoResponses[$i]/$numtrials[$i]);
+	}
+	if($numLightsOut[$i] ne "NA"){
+	    $pct2=int(100.0*$numLightsOut[$i]/$numtrials[$i]);
+	}
+    }
+    if("$lasttrialdates[$i]" eq "".($mon+1)."$lmday"){
+	$ago = (60*($hour-int($lasttrialtimes[$i]/100)))+$min-($lasttrialtimes[$i]-100*int($lasttrialtimes[$i]/100)) ." min";
+    }
+    else {
+	$ago = "not today";
+    }
+    print "box $boxnums[$i] \tbird $ids[$i] trls=$numtrials[$i] \tfeeds=$feedops[$i] ($pct1%)  \tTOs=$numLightsOut[$i] ($pct2%) \tnoRs=$numNoResponses[$i] ($pct3%) \tFeedErrs=($hfailures[$i],$dfailures[$i],$ufailures[$i],$rfailures[$i]) \tlast=$lasttrialtimes[$i] $lasttrialdates[$i] ($ago)\n";
+}
+

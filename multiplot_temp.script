@@ -1,0 +1,18 @@
+set multiplot; set nokey; set size 0.333333333333333, 0.333333333333333 ; set ytics 0, .2, 1; set grid; set bmargin 2; set lmargin 2; set rmargin 2; set tmargin 2;
+
+set origin 0 , 0.666666666666667 ; 
+set title '848 AABB_BBAA.stim' ; 
+plot "/home/bird/opdat/B848/848_AABB_BBAA.plot_out" using 1:2 with l, "/home/bird/opdat/B848/848_AABB_BBAA.plot_out" using 1:3 with l, "/home/bird/opdat/B848/848_AABB_BBAA.plot_out" using 1:4 with l ; 
+set origin 0.333333333333333 , 0.666666666666667 ; 
+set title '840 AABB_BBAApre.stim' ; 
+plot "/home/bird/opdat/B840/840_AABB_BBAApre.plot_out" using 1:2 with l, "/home/bird/opdat/B840/840_AABB_BBAApre.plot_out" using 1:3 with l, "/home/bird/opdat/B840/840_AABB_BBAApre.plot_out" using 1:4 with l ; 
+set origin 0.666666666666667 , 0.333333333333333 ; 
+set title '1146 controlPattern.stim' ; 
+plot "/home/bird/opdat/B1146/1146_controlPattern.plot_out" using 1:2 with l, "/home/bird/opdat/B1146/1146_controlPattern.plot_out" using 1:3 with l, "/home/bird/opdat/B1146/1146_controlPattern.plot_out" using 1:4 with l ; 
+set origin 0 , 0 ; 
+set title '836 controlPattern.stim' ; 
+plot "/home/bird/opdat/B836/836_controlPattern.plot_out" using 1:2 with l, "/home/bird/opdat/B836/836_controlPattern.plot_out" using 1:3 with l, "/home/bird/opdat/B836/836_controlPattern.plot_out" using 1:4 with l ; 
+set origin 0.333333333333333 , 0 ; 
+set title '692 ABAB_2_training.stim' ; 
+plot "/home/bird/opdat/B692/692_ABAB_2_training.plot_out" using 1:2 with l, "/home/bird/opdat/B692/692_ABAB_2_training.plot_out" using 1:3 with l, "/home/bird/opdat/B692/692_ABAB_2_training.plot_out" using 1:4 with l ; 
+unset multiplot;

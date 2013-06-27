@@ -1,0 +1,31 @@
+#############################################################
+#box	enable	bird	bird's home directory	process to run 
+####	######	####	#####################	##############
+1	1	832     /home/bird/opdat/B<3>   lights -B <1> -on 12:00 -off 23:50
+2	1       824	/home/bird/opdat/B<3>   lights -B <1> -on 10:00 -off 20:30
+3	1	776	/home/bird/opdat/B<3>   lights -B <1> -on 99 -off 99 
+4	1	809	/home/bird/opdat/B<3>   lights -B <1> -on 99 -off 99 
+5	1	1112	/home/bird/opdat/B<3>   lights -B <1> -on 7:00 -off 17:00
+6	1	746	/home/bird/opdat/B<3>   lights -B <1> -on 99 -off 99 
+7	1	743	/home/bird/opdat/B<3>   lights -B <1> -on 99 -off 99 
+8	1	774	/home/bird/opdat/B<3>   lights -B <1> -on 99 -off 99
+# 
+#this file should have the whitespace delimited structure
+#<box number>   <enable>     <bird id>     <directory for execution>	<process to run>
+
+#'start s' will start the indicated processes in the indicated boxes and directories
+#<process to run> may be "NONE" if no process should run for that box ('start k' will kill any that are)
+#only one process may run in a box at once
+#if there is more than one line for a box, only the first one will count
+#if there is no line for a box, 'start' will take no action on processes for it
+#the enable column should be '1' or '0'.  other values will cause the line to fail to be parsed.
+#if it is '1', the line behaves as expected.  if it is '0':
+#	'start k' will kill processes for that box
+#	'start s' will not start the process indicated on the line
+
+#a number enclosed in angle brackets may be used to stand for the value in a previous column for that line
+#for example:  the line "12	1	143	/home/bird/opdata/B<3>	gng -B <1> -S <3> test.stim"
+#will be parsed as:     "12	1	143	/home/bird/opdata/B143	gng -B 12 -S 143 test.stim"
+
+#lines begining with '#' and lines without 5 whitespace delimited columns will be ignored
+#only <process to run> may contain whitespace

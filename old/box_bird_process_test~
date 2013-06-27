@@ -1,0 +1,33 @@
+#this file should have the tab delimited structure
+#<box number>     <bird id>     <directory for execution>	<process to run>
+
+#<process to run> may be "NONE" if no process should run for that box ('start.perl k' will kill any that are)
+#only one process may run in a box at once
+#if there is more than one line for a box, only the first one will count
+#the intended process has to match exactly (same order of options, etc.) the currently running process to be a match
+
+#bird id may be "NONE" if no bird is in the box (although this is not treated as different from a real bird id)
+#similarly, <directory for execution> may be NONE (also not treated differently)
+
+#a number enclosed in angle brackets may be used to stand for the value in a previous column for that line
+#for example:  the line "12	143	/home/bird/opdata/B<2>	gng -B <1> -S <2> test.stim"
+#will be parsed as:     "12	143	/home/bird/opdata/B143	gng -B 12 -S 143 test.stim"
+
+#lines begining with '#' and lines without 4 tab delimited columns will be ignored
+
+1	NONE	NONE			NONE
+2	102	/home/bird/opdat/B<2>	gng -B <1> -S <2> -on 7 -off 19 G2set1.stim
+3	103	/home/bird/opdat/B<2>	gng -B <1> -S <2> -on 7 -off 19 G2set1.stim
+4	104	/home/bird/opdat/B<2>	gng -B <1> -S <2> -on 7 -off 19 G2set1.stim
+5	105	/home/bird/opdat/B<2>	gng -B <1> -S <2> -on 7 -off 19 G2set1.stim
+6	106	/home/bird/opdat/B<2>	gng -B <1> -S <2> -on 7 -off 19 G2set1.stim
+7	107	/home/bird/opdat/B<2>	gng -B <1> -S <2> -on 7 -off 19 G2set2.stim
+8	108	/home/bird/opdat/B<2>	gng -B <1> -S <2> -on 7 -off 19 G2set2.stim
+9	109	/home/bird/opdat/B<2>	gng -B <1> -S <2> -on 7 -off 19 G2set2.stim
+10	110	/home/bird/opdat/B<2>	gng -B <1> -S <2> -on 7 -off 19 G2set2.stim
+11	111	/home/bird/opdat/B<2>	gng -B <1> -S <2> -on 7 -off 19 G2set2.stim
+12	112	/home/bird/opdat/B<2>	gng -B <1> -S <2> -on 7 -off 19 gng_AB.stim
+13	117	/home/bird/opdat/B<2> 	gng -B <1> -S <2> -on 7 -off 19 gng_AB.stim
+14	114	/home/bird/opdat/B<2>	gng -B <1> -S <2> -on 7 -off 19 gng_BC.stim
+15	115	/home/bird/opdat/B<2>	gng -B <1> -S <2> -on 7 -off 19 gng_BC.stim
+16	116	/home/bird/opdat/B<2>	gng -B <1> -S <2> -on 7 -off 19 gng_AC.stim
